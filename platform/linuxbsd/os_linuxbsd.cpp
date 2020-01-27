@@ -1079,6 +1079,10 @@ Error OS_LinuxBSD::move_to_trash(const String &p_path) {
 OS_LinuxBSD::OS_LinuxBSD() {
 	main_loop = nullptr;
 
+#ifdef JACK_ENABLED
+	AudioDriverManager::add_driver(&driver_jack);
+#endif
+
 #ifdef PULSEAUDIO_ENABLED
 	AudioDriverManager::add_driver(&driver_pulseaudio);
 #endif

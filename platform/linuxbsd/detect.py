@@ -49,6 +49,7 @@ def get_opts():
         BoolVariable("dbus", "Use D-Bus to handle screensaver and portal desktop settings", True),
         BoolVariable("speechd", "Use Speech Dispatcher for Text-to-Speech support", True),
         BoolVariable("fontconfig", "Use fontconfig for system fonts support", True),
+        BoolVariable('jack', 'Detect and use JACK', True),
         BoolVariable("udev", "Use udev for gamepad connection callbacks", True),
         BoolVariable("x11", "Enable X11 display", True),
         BoolVariable("touch", "Enable touch events", True),
@@ -313,6 +314,15 @@ def configure(env: "Environment"):
                 env["pulseaudio"] = False
         else:
             env.Append(CPPDEFINES=["PULSEAUDIO_ENABLED", "_REENTRANT"])
+
+    if env["jack"]:
+        if os.system("pkg-config --exists jack") == 0:  # 0 means found
+            print("Enabling JACK")
+            env.Append(CPPDEFINES=["JACK_ENABLED"])
+            # Do not link the library at build time
+            env.ParseConfig("pkg-config --cflags jack")
+        else:
+            print("JACK development libraries not found, disabling driver")
 
     if env["dbus"]:
         if not env["use_sowrap"]:
